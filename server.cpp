@@ -6,9 +6,32 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h> 
+#include <bits/stdc++.h>
 #define PORT 8080 
+using namespace std;
+
+// struct frame{
+//     // int a;
+//     // int b;
+//     string s;
+// } ;
+class frame 
+{
+    public :
+    int a ;
+    int b;
+    string s;
+    frame(){
+        a = 0;
+        b=4;
+        s = "";
+    }
+
+};
+
 int main(int argc, char const *argv[]) 
 { 
+    int frame_expected=0%7;
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
     int opt = 1; 
@@ -52,9 +75,36 @@ int main(int argc, char const *argv[])
         perror("accept"); 
         exit(EXIT_FAILURE); 
     } 
-    valread = read( new_socket , buffer, 1024); 
-    printf("%s\n",buffer ); 
-    send(new_socket , hello , strlen(hello) , 0 ); 
-    printf("Hello message sent\n"); 
+    int arr[2] = {0,0};
+    // valread = read( new_socket , buffer, 1024);
+    frame rcv;
+    // rcv.a=4;
+    // rcv.b = 0;
+    rcv.s= "hi";
+    cout<<rcv.s;
+    valread = read( new_socket , &rcv, sizeof(rcv));
+    // valread = recv(new_socket, &rcv, sizeof(rcv), 0);
+    // if(buffer is same as frame expected)
+    // {
+        // frame_expected=(frame_expected+1)%7;
+        // printf("%s\n",buffer ); 
+        // int a=sizeof(buffer);
+        // printf("%d",arr[0]);
+        // printf("%d",arr[1]);
+        // string str = rcv.s;
+        // printf("%d\n",rcv.a);
+        cout<<rcv.a<<endl;
+        cout<<rcv.b<<endl;
+        // printf("%d\n",rcv.b);
+        // string str = rcv.s;
+        // printf("%s\n",str);
+        // int n = sizeof(str);
+        // int n = str.length();
+        cout<<rcv.s;
+        // send(new_socket , hello , strlen(hello) , 0 ); 
+        // printf("Hello message sent\n"); 
+        cout<<"fbhsjf"<<endl;
+    // }
+    
     return 0; 
 } 
