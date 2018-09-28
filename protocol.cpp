@@ -31,12 +31,29 @@ void from_network_layer()
 
 }
 
+
+void to_network_layer(frame info)
+{
+
+}
+
 void send_data()
 {
 
 }
 
 void from_physical_layer(frame r)
+{
+
+}
+
+void to_physical_layer(frame s)
+{
+	
+}
+
+
+void disable_network_layer()
 {
 
 }
@@ -76,6 +93,35 @@ void go_back_n()
 			case frame_arrival:
 				from_physical_layer(&r);
 
+				if(r.seq == frame_expected){
+					to_network_layer(&r.info);
+					frame_expected = (frame_expected+1)%(MAX_SEQ+1);
+				}
+
+				while(between(ack_expected,r.ack,next_frame_to_send)){
+					nbuffered--;
+					stop_timer(ack_expected);
+					/////implement stop timer
+
+					ack_expected = (ack_expected+1)%(MAX_SEQ+1);
+				}
+
+				break;
+
+			case cksum_err : break;
+
+			case timeout:
+				next_frame_to_send = ack_expected;
+				for(int i=1;i<=nbuffered;i++){
+					send_data();
+					///////////////////////////
+					next_frame_to_send = (next_frame_to_send+1)%(MAX_SEQ+1);
+				}
 		}
+
+		if(nbuffered<MAX_SEQ)
+			enable_network_layer();
+		else
+			disable_network_layer();
 	}
 }
