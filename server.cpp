@@ -7,7 +7,7 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <bits/stdc++.h>
-#include "protocol.h"
+// #include "protocol.h"
 #define PORT 8080 
 using namespace std;
 
@@ -46,6 +46,13 @@ frame* buildFrame(string s)
     int len=s.length();
     f->info= s.substr(2,len-2);
     return f;
+}
+
+void caller( int& new_socket , char* buffer)
+{
+    int valread = read( new_socket , buffer, 1024);
+    cout<<valread;
+
 }
 
 
@@ -94,8 +101,11 @@ int  main(int argc, char const *argv[])
         perror("accept"); 
         exit(EXIT_FAILURE); 
     } 
-    valread = read( new_socket , buffer, 1024); 
+    // valread = read( new_socket , buffer, 1024);
+    caller( new_socket , buffer);
     printf("%s\n",buffer ); 
+    caller( new_socket , buffer);
+    caller( new_socket , buffer);
     send(new_socket , hello , strlen(hello) , 0 ); 
     printf("Hello message sent\n"); 
     return 0; 

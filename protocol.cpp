@@ -2,6 +2,13 @@
 typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type;
 
 #include <bits/stdc++.h>
+
+#include <unistd.h> 
+#include <stdio.h> 
+#include <sys/socket.h> 
+#include <stdlib.h> 
+#include <netinet/in.h> 
+#include <string.h>
 #include "protocol.h"
 using namespace std;
 
@@ -16,8 +23,16 @@ static bool between(int a,int b,int c)
 }
 
 
-void wait_for_event()
+void wait_for_event(event_type& event, int& sock, char* buffer)
 {
+	int valread = read(sock,buffer,2026);
+
+	if(valread<=0){
+		event = network_layer_ready;
+	}
+	else{
+
+	}
 
 }
 
@@ -58,7 +73,7 @@ void disable_network_layer()
 
 }
 
-void go_back_n()
+void go_back_n(int& sock, char* buffer)
 {
 	int next_frame_to_send;
 	int ack_expected;
@@ -76,7 +91,7 @@ void go_back_n()
 
 	while(true)
 	{
-		wait_for_event(&event);
+		wait_for_event(event,sock,buffer);
 
 		switch(event)
 		{

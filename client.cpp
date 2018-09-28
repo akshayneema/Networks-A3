@@ -10,7 +10,7 @@
 #include <string.h> 
 #include <unistd.h>
 #include <bits/stdc++.h>
-#include "protocol.h"
+// #include "protocol.h"
 #define PORT 8080 
 using namespace std;
 string generate_packet()
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
     } 
     send(sock , hello , strlen(hello) , 0 ); 
     printf("Hello message sent\n"); 
-    valread = read( sock , buffer, 1024); 
-    printf("%s\n",buffer ); 
+    // valread = read( sock , buffer, 1024); 
+    // printf("%s\n",buffer ); 
     return 0; 
 }
