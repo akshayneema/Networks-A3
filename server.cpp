@@ -7,31 +7,50 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <bits/stdc++.h>
+#include "protocol.h"
 #define PORT 8080 
 using namespace std;
 
-// struct frame{
-//     // int a;
-//     // int b;
-//     string s;
-// } ;
-class frame 
+string generate_packet()
 {
-    public :
-    int a ;
-    int b;
+    int length=rand()%1512+512;
+    // cout<<"l="<<length<<endl;
+    char c[length];
+    memset(c,'0',length);
+    // cout<<"c(1)="<<c<<endl;
     string s;
-    frame(){
-        a = 0;
-        b=4;
-        s = "";
-    }
+    s=c;
+    return s;
+}
 
-};
+struct frame{
+    string info;
+    int seq;
+    int ack;
+    // string s;
+} ;
 
-int main(int argc, char const *argv[]) 
+string encodeString(frame* f)
+{
+    string seqno=to_string(f->seq);
+    string ackno=to_string(f->ack);
+    return seqno+ackno+f->info;
+    
+}
+
+frame* buildFrame(string s)
+{
+    frame* f;
+    f->seq=s[0];
+    f->ack=s[1];
+    int len=s.length();
+    f->info= s.substr(2,len-2);
+    return f;
+}
+
+
+int  main(int argc, char const *argv[]) 
 { 
-    int frame_expected=0%7;
     int server_fd, new_socket, valread; 
     struct sockaddr_in address; 
     int opt = 1; 
@@ -75,36 +94,9 @@ int main(int argc, char const *argv[])
         perror("accept"); 
         exit(EXIT_FAILURE); 
     } 
-    int arr[2] = {0,0};
-    // valread = read( new_socket , buffer, 1024);
-    frame rcv;
-    // rcv.a=4;
-    // rcv.b = 0;
-    rcv.s= "hi";
-    cout<<rcv.s;
-    valread = read( new_socket , &rcv, sizeof(rcv));
-    // valread = recv(new_socket, &rcv, sizeof(rcv), 0);
-    // if(buffer is same as frame expected)
-    // {
-        // frame_expected=(frame_expected+1)%7;
-        // printf("%s\n",buffer ); 
-        // int a=sizeof(buffer);
-        // printf("%d",arr[0]);
-        // printf("%d",arr[1]);
-        // string str = rcv.s;
-        // printf("%d\n",rcv.a);
-        cout<<rcv.a<<endl;
-        cout<<rcv.b<<endl;
-        // printf("%d\n",rcv.b);
-        // string str = rcv.s;
-        // printf("%s\n",str);
-        // int n = sizeof(str);
-        // int n = str.length();
-        cout<<rcv.s;
-        // send(new_socket , hello , strlen(hello) , 0 ); 
-        // printf("Hello message sent\n"); 
-        cout<<"fbhsjf"<<endl;
-    // }
-    
+    valread = read( new_socket , buffer, 1024); 
+    printf("%s\n",buffer ); 
+    send(new_socket , hello , strlen(hello) , 0 ); 
+    printf("Hello message sent\n"); 
     return 0; 
 } 

@@ -10,6 +10,7 @@
 #include <string.h> 
 #include <unistd.h>
 #include <bits/stdc++.h>
+#include "protocol.h"
 #define PORT 8080 
 using namespace std;
 string generate_packet()
@@ -24,26 +25,30 @@ string generate_packet()
     return s;
 }
 
-// struct frame {
-//     // int a;
-//     // int b;
-//     string s;
-// } ;
+struct frame{
+    string info;
+    int seq;
+    int ack;
+    // string s;
+} ;
 
-
-class frame 
+string encodeString(frame* f)
 {
-    public :
-    int a ;
-    int b;
-    string s;
-    frame(){
-        a = 0;
-        b=4;
-        s = "";
-    }
+    string seqno=to_string(f->seq);
+    string ackno=to_string(f->ack);
+    return seqno+ackno+f->info;
+    
+}
 
-};
+frame* buildFrame(string s)
+{
+    frame* f;
+    f->seq=s[0];
+    f->ack=s[1];
+    int len=s.length();
+    f->info= s.substr(2,len-2);
+    return f;
+}
 
 int main(int argc, char const *argv[]) 
 { 
@@ -52,7 +57,6 @@ int main(int argc, char const *argv[])
     struct sockaddr_in serv_addr; 
     char *hello = "Hello from client"; 
     char buffer[1024] = {0}; 
-
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
     { 
         printf("\n Socket creation error \n"); 
@@ -76,24 +80,9 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n"); 
         return -1; 
     } 
-    // cout<<"above gen";
-    // string s= generate_packet();
-    // cout<<"below gen";
-    // cout<<"s="<<s<<endl;
-    // char c[s.length()];
-    // strcpy(c, s.c_str());
-    // int a[2]={2475,153};
-    frame r;
-    r.a = 12;
-    r.b = 23;
-    // r.s = '8';
-    r.s = "here";
-    // strcpy(r.s, "here");
-    // printf("%s",r.s);
-    cout<<r.s;
-    send(sock , &r , sizeof(r) , 0 );
+    send(sock , hello , strlen(hello) , 0 ); 
     printf("Hello message sent\n"); 
-    // valread = read( sock , buffer, 1024); 
-    // printf("%s\n",buffer );
+    valread = read( sock , buffer, 1024); 
+    printf("%s\n",buffer ); 
     return 0; 
-} 
+}
