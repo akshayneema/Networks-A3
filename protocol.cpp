@@ -1,5 +1,5 @@
 #define MAX_SEQ 7
-typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event type;
+typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type;
 
 #include <bits/stdc++.h>
 #include "protocol.h"
@@ -31,6 +31,16 @@ void from_network_layer()
 
 }
 
+void send_data()
+{
+
+}
+
+void from_physical_layer(frame r)
+{
+
+}
+
 void go_back_n()
 {
 	int next_frame_to_send;
@@ -54,7 +64,17 @@ void go_back_n()
 		switch(event)
 		{
 			case network_layer_ready:
-				from_network_layer(&buffer[])
+				from_network_layer(&buffer[]);
+				nbuffered++;
+				send_data(next_frame_to_send,frame_expected,buffer);
+				//////////implement send data
+
+
+				next_frame_to_send = (next_frame_to_send+1)%(MAX_SEQ+1);
+				break;
+
+			case frame_arrival:
+				from_physical_layer(&r);
 
 		}
 	}
