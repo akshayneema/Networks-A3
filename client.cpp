@@ -10,6 +10,7 @@
 #include <string.h> 
 #include <unistd.h>
 #include <bits/stdc++.h>
+#include <fcntl.h>
 #include "protocol.h"
 #define PORT 8080 
 using namespace std;
@@ -80,14 +81,21 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n"); 
         return -1; 
     } 
+    
+    int status = fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+
+    if(status==-1){
+    	perror("calling fcntl");
+    }
+
     // send(sock , hello , strlen(hello) , 0 ); 
     // printf("Hello message sent\n"); 
-    int non_blocking = fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+    // valread = read( sock , buffer, 1024); 
+    // printf("%s\n",buffer ); 
 
     go_back_n(sock);
 
     
-    // valread = read( sock , buffer, 1024); 
-    // printf("%s\n",buffer ); 
+    
     return 0; 
 }

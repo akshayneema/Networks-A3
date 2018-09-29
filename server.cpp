@@ -7,7 +7,10 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <bits/stdc++.h>
+// #include "protocol_server.h"
 #include "protocol.h"
+
+#include <fcntl.h>
 #define PORT 8080 
 using namespace std;
 
@@ -120,7 +123,18 @@ int  main(int argc, char const *argv[])
     // l=caller( new_socket , buffer);
     // send(new_socket , hello , strlen(hello) , 0 ); 
     // printf("Hello message sent\n"); 
-    int non_blocking = fcntl(new_socket, F_SETFL, fcntl(new_socket, F_GETFL, 0) | O_NONBLOCK);
+    int status = fcntl(new_socket, F_SETFL, fcntl(new_socket, F_GETFL, 0) | O_NONBLOCK);
+
+     if(status==-1){
+        perror("calling sjfnk");
+    }
+
+    // valread = read( new_socket , buffer, 1024);
+
+    // printf("%s\n",buffer ); 
+
+    // send(new_socket , hello , strlen(hello) , 0 ); 
+    // printf("Hello message sent\n");
 
     go_back_n(new_socket);
 
