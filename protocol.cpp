@@ -10,6 +10,7 @@ typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type
 #include <netinet/in.h> 
 #include <string.h>
 #include "protocol.h"
+#include <fcntl.h>
 using namespace std;
 
 
@@ -23,15 +24,30 @@ static bool between(int a,int b,int c)
 }
 
 
-void wait_for_event(event_type& event, int& sock, char* buffer)
+void wait_for_event(event_type& event, int& sock, queue<string> buffer)
 {
-	int valread = read(sock,buffer,2026);
+	// int valread = read(sock,buffer,2026);
 
-	if(valread<=0){
-		event = network_layer_ready;
-	}
-	else{
+	while(true){
 
+		for(int i=0;i<8;i++){
+
+		}
+
+
+		int received = fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+
+		if(received == -1){
+			event = network_layer_ready;
+			return;
+		}
+		else{
+			string str;
+			int valread = read(sock,str,2026);
+			
+			event = frame_arrival;
+			return;
+		}
 	}
 
 }
