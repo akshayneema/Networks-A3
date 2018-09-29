@@ -19,6 +19,3 @@ void enable_network_layer();
 
 void wait_for_event();
 
-
-
-
