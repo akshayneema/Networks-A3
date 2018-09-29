@@ -80,23 +80,24 @@ void wait_for_event(event_type& event, int& sock)
 			}
 		}
 
+		char* str;
+			int valread = read(sock,str,2026);
 
-		int received = fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
+		
 
 		cout<<"          waiting"<<endl;
 
 		
 
-		cout<<"received         " <<received<<endl;
+		cout<<"received         " <<valread<<endl;
 
-		if(received <= 0){
+		if(valread <= 0){
 			event = network_layer_ready;
 			return;
 		}
 		else{
 
-			char* str;
-			int valread = read(sock,str,2026);
+			
 			
 
 			string ss = str;

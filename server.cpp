@@ -120,6 +120,8 @@ int  main(int argc, char const *argv[])
     // l=caller( new_socket , buffer);
     // send(new_socket , hello , strlen(hello) , 0 ); 
     // printf("Hello message sent\n"); 
+    int non_blocking = fcntl(new_socket, F_SETFL, fcntl(new_socket, F_GETFL, 0) | O_NONBLOCK);
+
     go_back_n(new_socket);
 
     return 0; 
