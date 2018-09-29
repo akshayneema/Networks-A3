@@ -10,45 +10,45 @@
 #include <string.h> 
 #include <unistd.h>
 #include <bits/stdc++.h>
-// #include "protocol.h"
+#include "protocol.h"
 #define PORT 8080 
 using namespace std;
-string generate_packet()
-{
-    int length=rand()%1512+512;
-    // cout<<"l="<<length<<endl;
-    char c[length];
-    memset(c,'0',length);
-    // cout<<"c(1)="<<c<<endl;
-    string s;
-    s=c;
-    return s;
-}
+// string generate_packet()
+// {
+//     int length=rand()%1512+512;
+//     // cout<<"l="<<length<<endl;
+//     char c[length];
+//     memset(c,'0',length);
+//     // cout<<"c(1)="<<c<<endl;
+//     string s;
+//     s=c;
+//     return s;
+// }
 
-struct frame{
-    string info;
-    int seq;
-    int ack;
-    // string s;
-} ;
+// struct frame{
+//     string info;
+//     int seq;
+//     int ack;
+//     // string s;
+// } ;
 
-string encodeString(frame f)
-{
-    string seqno=to_string(f.seq);
-    string ackno=to_string(f.ack);
-    return seqno+ackno+f.info;
+// string encodeString(frame f)
+// {
+//     string seqno=to_string(f.seq);
+//     string ackno=to_string(f.ack);
+//     return seqno+ackno+f.info;
     
-}
+// }
 
-frame buildFrame(string s)
-{
-    frame f;
-    f.seq=s[0];
-    f.ack=s[1];
-    int len=s.length();
-    f.info= s.substr(2,len-2);
-    return f;
-}
+// frame buildFrame(string s)
+// {
+//     frame f;
+//     f.seq=s[0];
+//     f.ack=s[1];
+//     int len=s.length();
+//     f.info= s.substr(2,len-2);
+//     return f;
+// }
 
 int main(int argc, char const *argv[]) 
 { 
@@ -80,8 +80,10 @@ int main(int argc, char const *argv[])
         printf("\nConnection Failed \n"); 
         return -1; 
     } 
-    send(sock , hello , strlen(hello) , 0 ); 
-    printf("Hello message sent\n"); 
+    // send(sock , hello , strlen(hello) , 0 ); 
+    // printf("Hello message sent\n"); 
+
+    go_back_n(sock);
 
     
     // valread = read( sock , buffer, 1024); 

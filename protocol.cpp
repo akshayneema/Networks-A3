@@ -1,5 +1,6 @@
 #define MAX_SEQ 7
-typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type;
+#include "protocol.h"
+// typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type;
 
 #include <bits/stdc++.h>
 
@@ -9,16 +10,28 @@ typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h>
-#include "protocol.h"
+// #include "protocol.h"
 #include <fcntl.h>
 using namespace std;
+const double threshold=0.0003;
 
-struct frame{
-    string info;
-    int seq;
-    int ack;
-    // string s;
-} ;
+clock_t start_timer[MAX_SEQ+1];
+
+frame gb_recv;
+
+
+string generate_packet()
+{
+	srand(time(0));
+    int length=rand()%1512+512;
+    // cout<<"l="<<length<<endl;
+    char c[length];
+    memset(c,'0',length);
+    // cout<<"c(1)="<<c<<endl;
+    string s;
+    s=c;
+    return s;
+}
 
 string encodeString(frame f)
 {
@@ -28,23 +41,16 @@ string encodeString(frame f)
     
 }
 
-frame buildFrame(string s)
+void buildFrame(string s)
 {
-    frame f;
-	if(s.length()==0)
-	{
-		f.seq=0;
-		f.ack=0;
-		f.info="";
-	}
-	else
-	{
-		f.seq=s[0];
-		f.ack=s[1];
+    // frame f;
+	
+		gb_recv.seq=s[0];
+		gb_recv.ack=s[1];
 		int len=s.length();
-		f.info= s.substr(2,len-2);
-	}
-    return f;
+		gb_recv.info= s.substr(2,len-2);
+	
+    // return f;
 }
 
 static bool between(int a,int b,int c)
@@ -57,79 +63,104 @@ static bool between(int a,int b,int c)
 }
 
 
-void wait_for_event(event_type& event, int& sock, queue<string> buffer)
+void wait_for_event(event_type& event, int& sock)
 {
 	// int valread = read(sock,buffer,2026);
 
 	while(true){
 
 		for(int i=0;i<8;i++){
-
+			if(start_timer[i]!=0){
+				clock_t end = clock();
+				double time_elapsed = (double)(end-start_timer[i])/CLOCKS_PER_SEC;
+				if(time_elapsed>=threshold){
+					event = timeout;
+					return;
+				}
+			}
 		}
 
 
 		int received = fcntl(sock, F_SETFL, fcntl(sock, F_GETFL, 0) | O_NONBLOCK);
 
-		if(received == -1){
+		cout<<"          waiting"<<endl;
+
+		
+
+		cout<<"received         " <<received<<endl;
+
+		if(received <= 0){
 			event = network_layer_ready;
 			return;
 		}
 		else{
+
 			char* str;
 			int valread = read(sock,str,2026);
+			
+
+			string ss = str;
+
+			buildFrame(ss);
 			
 			event = frame_arrival;
 			return;
 		}
 	}
 
-	}
+	return;
+
+	
 }
 
 void enable_network_layer()
 {
+	return;
 
 }
 
-void from_network_layer()
+void disable_network_layer()
 {
-
+	return;
 }
 
-
-void to_network_layer(frame info)
+void send_data(int frame_nr,int frame_expected,string* framebuffer,int sock)
 {
+	// cout<<"enetered send_data"<<endl;
+	frame s;
+	// s.info = generate_packet();
+	// framebuffer.push(s.info);
+	s.info = framebuffer[frame_nr];
+	s.seq = frame_nr;
+	s.ack = (frame_expected+MAX_SEQ)%(MAX_SEQ+1);
+	// cout<<"started encoding"<<endl;
+	string str = encodeString(s);
+	// cout<<"out of encoding"<<endl;
+	char ch[str.length()];
+	strcpy(ch,str.c_str());
+	// cout<<"started send"<<endl;
+	int send_packet = send(sock,ch,strlen(ch),0);
+	// cout<<"out of send data"<<endl;
+	start_timer[frame_nr] = clock();
 
-}
+	return;
 
-void send_data()
-{
-
-}
-
-void from_physical_layer(frame r)
-{
-
-}
-
-void to_physical_layer(frame s)
-{
 	
 }
 
 
-void disable_network_layer()
-{
 
-}
-
-void go_back_n(int& sock, char* buffer)
+void go_back_n(int& sock)
 {
 	int next_frame_to_send;
 	int ack_expected;
 	int frame_expected;
 	frame r;
-	queue<string> framebuffer;
+	// queue<string> framebuffer;
+	string framebuffer[MAX_SEQ+1];
+	for(int i=0;i<MAX_SEQ+1;i++){
+		framebuffer[i] = "0";
+	}
 	int nbuffered;
 	event_type event;
 
@@ -139,16 +170,32 @@ void go_back_n(int& sock, char* buffer)
 	frame_expected=0;
 	nbuffered=0;
 
+	for(int i=0;i<MAX_SEQ+1;i++){
+		start_timer[i] = 0;
+	}
+
+	int n=0;
+
 	while(true)
 	{
-		frame f=wait_for_event(event,sock,buffer);
+		n++;
+		wait_for_event(event,sock);
 
 		switch(event)
 		{
 			case network_layer_ready:
-				from_network_layer(&framebuffer);
+				cout<<"data send"<<endl;
+				// from_network_layer(&framebuffer);
+
+				// framebuffer.push()
 				nbuffered++;
-				send_data(next_frame_to_send,frame_expected,buffer);
+				// string sz = generate_packet();
+				// framebuffer.push(sz);
+				framebuffer[next_frame_to_send] = generate_packet();
+
+				send_data(next_frame_to_send,frame_expected,framebuffer,sock);
+
+				cout<<"sending     "<<next_frame_to_send<<endl;
 				//////////implement send data
 
 
@@ -157,17 +204,23 @@ void go_back_n(int& sock, char* buffer)
 
 			case frame_arrival:
 				// from_physical_layer(&r);
-				r=f;
-				if(r.seq == frame_expected){
-					to_network_layer(&r.info);
+				cout<<"data received"<<endl;
+				
+				if(gb_recv.seq == frame_expected){
+					// to_network_layer(&r.info);
+					cout<<"data     "<<frame_expected<<endl;
 					frame_expected = (frame_expected+1)%(MAX_SEQ+1);
+
+					
 				}
 
-				while(between(ack_expected,r.ack,next_frame_to_send)){
+				while(between(ack_expected,gb_recv.ack,next_frame_to_send)){
 					nbuffered--;
-					stop_timer(ack_expected);
-					/////implement stop timer
+					// stop_timer(ack_expected);
 
+					cout<<"ack_received    "<<ack_expected<<endl;
+					start_timer[ack_expected] = 0;
+					/////implement stop timer
 					ack_expected = (ack_expected+1)%(MAX_SEQ+1);
 				}
 
@@ -178,11 +231,13 @@ void go_back_n(int& sock, char* buffer)
 			case timeout:
 				next_frame_to_send = ack_expected;
 				for(int i=1;i<=nbuffered;i++){
-					send_data();
+					send_data(next_frame_to_send,frame_expected,framebuffer,sock);
 					///////////////////////////
 					next_frame_to_send = (next_frame_to_send+1)%(MAX_SEQ+1);
 				}
 		}
+
+		if(n>100) break;
 
 		if(nbuffered<MAX_SEQ)
 			enable_network_layer();

@@ -7,53 +7,53 @@
 #include <netinet/in.h> 
 #include <string.h> 
 #include <bits/stdc++.h>
-// #include "protocol.h"
+#include "protocol.h"
 #define PORT 8080 
 using namespace std;
 
-string generate_packet()
-{
-    int length=rand()%1512+512;
-    // cout<<"l="<<length<<endl;
-    char c[length];
-    memset(c,'0',length);
-    // cout<<"c(1)="<<c<<endl;
-    string s;
-    s=c;
-    return s;
-}
+// string generate_packet()
+// {
+//     int length=rand()%1512+512;
+//     // cout<<"l="<<length<<endl;
+//     char c[length];
+//     memset(c,'0',length);
+//     // cout<<"c(1)="<<c<<endl;
+//     string s;
+//     s=c;
+//     return s;
+// }
 
-struct frame{
-    string info;
-    int seq;
-    int ack;
-    // string s;
-} ;
+// struct frame{
+//     string info;
+//     int seq;
+//     int ack;
+//     // string s;
+// } ;
 
-string encodeString(frame f)
-{
-    string seqno=to_string(f.seq);
-    string ackno=to_string(f.ack);
-    return seqno+ackno+f.info;
+// string encodeString(frame f)
+// {
+//     string seqno=to_string(f.seq);
+//     string ackno=to_string(f.ack);
+//     return seqno+ackno+f.info;
     
-}
+// }
 
-frame buildFrame(string s)
-{
-    frame f;
-    f.seq=s[0];
-    f.ack=s[1];
-    int len=s.length();
-    f.info= s.substr(2,len-2);
-    return f;
-}
+// frame buildFrame(string s)
+// {
+//     frame f;
+//     f.seq=s[0];
+//     f.ack=s[1];
+//     int len=s.length();
+//     f.info= s.substr(2,len-2);
+//     return f;
+// }
 
-int caller( int& new_socket , char* buffer)
-{
-    int valread = read( new_socket , buffer, 1024);
-    cout<<valread;
-    return valread;
-}
+// int caller( int& new_socket , char* buffer)
+// {
+//     int valread = read( new_socket , buffer, 1024);
+//     cout<<valread;
+//     return valread;
+// }
 
 
 int  main(int argc, char const *argv[]) 
@@ -102,23 +102,25 @@ int  main(int argc, char const *argv[])
         exit(EXIT_FAILURE); 
     } 
     // valread = read( new_socket , buffer, 1024);
-    int l;
-    l=caller( new_socket , buffer);
-    string buffers=buffer;
+    // int l;
+    // l=caller( new_socket , buffer);
+    // string buffers=buffer;
     // cout<<"length="<<buffers.length()<<endl;
     // buffers=buffers.substr(0,l);
     // for(int i=0;i<l;i++)
     // {
     //     buffers=buffers+buffer[i];
     // }
-    cout<<"buffres="<<buffers<<endl;
+    // cout<<"buffres="<<buffers<<endl;
     // printf("%s\n",buffer ); 
     //printf madarchod hai...
-    l=caller( new_socket , buffer);
-    buffers=buffer;
-    cout<<"buffres="<<buffers<<endl;
-    l=caller( new_socket , buffer);
-    send(new_socket , hello , strlen(hello) , 0 ); 
-    printf("Hello message sent\n"); 
+    // l=caller( new_socket , buffer);
+    // buffers=buffer;
+    // cout<<"buffres="<<buffers<<endl;
+    // l=caller( new_socket , buffer);
+    // send(new_socket , hello , strlen(hello) , 0 ); 
+    // printf("Hello message sent\n"); 
+    go_back_n(new_socket);
+
     return 0; 
 } 
