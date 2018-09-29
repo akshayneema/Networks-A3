@@ -12,6 +12,39 @@ typedef enum {frame_arrival, cksum_err, timeout, network_layer_ready} event_type
 #include "protocol.h"
 using namespace std;
 
+struct frame{
+    string info;
+    int seq;
+    int ack;
+    // string s;
+} ;
+
+string encodeString(frame f)
+{
+    string seqno=to_string(f.seq);
+    string ackno=to_string(f.ack);
+    return seqno+ackno+f.info;
+    
+}
+
+frame buildFrame(string s)
+{
+    frame f;
+	if(s.length()==0)
+	{
+		f.seq=0;
+		f.ack=0;
+		f.info="";
+	}
+	else
+	{
+		f.seq=s[0];
+		f.ack=s[1];
+		int len=s.length();
+		f.info= s.substr(2,len-2);
+	}
+    return f;
+}
 
 static bool between(int a,int b,int c)
 {
@@ -23,17 +56,23 @@ static bool between(int a,int b,int c)
 }
 
 
-void wait_for_event(event_type& event, int& sock, char* buffer)
+frame wait_for_event(event_type& event, int& sock, char* buffer)
 {
 	int valread = read(sock,buffer,2026);
-
+	frame f;
 	if(valread<=0){
 		event = network_layer_ready;
+		string s="";
+		f=buildFrame(s);//dummy frame
 	}
 	else{
+		event = frame_arrival;
+		string s=buffer;
+
+		f=buildFrame(s);
 
 	}
-
+	return f;
 }
 
 void enable_network_layer()
@@ -79,7 +118,7 @@ void go_back_n(int& sock, char* buffer)
 	int ack_expected;
 	int frame_expected;
 	frame r;
-	queue<string> buffer;
+	queue<string> framebuffer;
 	int nbuffered;
 	event_type event;
 
@@ -91,12 +130,12 @@ void go_back_n(int& sock, char* buffer)
 
 	while(true)
 	{
-		wait_for_event(event,sock,buffer);
+		frame f=wait_for_event(event,sock,buffer);
 
 		switch(event)
 		{
 			case network_layer_ready:
-				from_network_layer(&buffer[]);
+				from_network_layer(&framebuffer);
 				nbuffered++;
 				send_data(next_frame_to_send,frame_expected,buffer);
 				//////////implement send data
@@ -106,8 +145,8 @@ void go_back_n(int& sock, char* buffer)
 				break;
 
 			case frame_arrival:
-				from_physical_layer(&r);
-
+				// from_physical_layer(&r);
+				r=f;
 				if(r.seq == frame_expected){
 					to_network_layer(&r.info);
 					frame_expected = (frame_expected+1)%(MAX_SEQ+1);

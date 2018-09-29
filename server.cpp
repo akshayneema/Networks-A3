@@ -30,29 +30,29 @@ struct frame{
     // string s;
 } ;
 
-string encodeString(frame* f)
+string encodeString(frame f)
 {
-    string seqno=to_string(f->seq);
-    string ackno=to_string(f->ack);
-    return seqno+ackno+f->info;
+    string seqno=to_string(f.seq);
+    string ackno=to_string(f.ack);
+    return seqno+ackno+f.info;
     
 }
 
-frame* buildFrame(string s)
+frame buildFrame(string s)
 {
-    frame* f;
-    f->seq=s[0];
-    f->ack=s[1];
+    frame f;
+    f.seq=s[0];
+    f.ack=s[1];
     int len=s.length();
-    f->info= s.substr(2,len-2);
+    f.info= s.substr(2,len-2);
     return f;
 }
 
-void caller( int& new_socket , char* buffer)
+int caller( int& new_socket , char* buffer)
 {
     int valread = read( new_socket , buffer, 1024);
     cout<<valread;
-
+    return valread;
 }
 
 
@@ -102,10 +102,22 @@ int  main(int argc, char const *argv[])
         exit(EXIT_FAILURE); 
     } 
     // valread = read( new_socket , buffer, 1024);
-    caller( new_socket , buffer);
-    printf("%s\n",buffer ); 
-    caller( new_socket , buffer);
-    caller( new_socket , buffer);
+    int l;
+    l=caller( new_socket , buffer);
+    string buffers=buffer;
+    // cout<<"length="<<buffers.length()<<endl;
+    // buffers=buffers.substr(0,l);
+    // for(int i=0;i<l;i++)
+    // {
+    //     buffers=buffers+buffer[i];
+    // }
+    cout<<"buffres="<<buffers<<endl;
+    // printf("%s\n",buffer ); 
+    //printf madarchod hai...
+    l=caller( new_socket , buffer);
+    buffers=buffer;
+    cout<<"buffres="<<buffers<<endl;
+    l=caller( new_socket , buffer);
     send(new_socket , hello , strlen(hello) , 0 ); 
     printf("Hello message sent\n"); 
     return 0; 

@@ -32,21 +32,21 @@ struct frame{
     // string s;
 } ;
 
-string encodeString(frame* f)
+string encodeString(frame f)
 {
-    string seqno=to_string(f->seq);
-    string ackno=to_string(f->ack);
-    return seqno+ackno+f->info;
+    string seqno=to_string(f.seq);
+    string ackno=to_string(f.ack);
+    return seqno+ackno+f.info;
     
 }
 
-frame* buildFrame(string s)
+frame buildFrame(string s)
 {
-    frame* f;
-    f->seq=s[0];
-    f->ack=s[1];
+    frame f;
+    f.seq=s[0];
+    f.ack=s[1];
     int len=s.length();
-    f->info= s.substr(2,len-2);
+    f.info= s.substr(2,len-2);
     return f;
 }
 
