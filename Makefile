@@ -34,20 +34,24 @@ CXX = g++ -std=c++11
 
 
 
-server : server.o protocol.o
-		$(CXX) -o server server.o protocol.o
+# server : server.o protocol.o
+# 		$(CXX) -o server server.o protocol.o
 
-server.o : server.cpp protocol.cpp protocol.h
-		$(CXX) -c server.cpp
+# server.o : server.cpp protocol.cpp protocol.h
+# 		$(CXX) -c server.cpp
 
 
-protocol.o : protocol.cpp protocol.h
-		$(CXX) -c protocol.cpp
+# protocol.o : protocol.cpp protocol.h
+# 		$(CXX) -c protocol.cpp
 
-.PHONY : clean
+# .PHONY : clean
 
-clean :
-		$(RM) server *.o *~
+# clean :
+# 		$(RM) server *.o *~
+client_make:
+	make -f Makefile1
+server_make:
+	make -f Makefile2
 
 
 

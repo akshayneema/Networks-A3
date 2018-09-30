@@ -1,0 +1,16 @@
+CXX = g++ -std=c++11
+
+server : server.o protocol.o
+		$(CXX) -o server server.o protocol.o
+
+server.o : server.cpp protocol.cpp protocol.h
+		$(CXX) -c server.cpp
+
+
+protocol.o : protocol.cpp protocol.h
+		$(CXX) -c protocol.cpp
+
+.PHONY : clean
+
+clean :
+		$(RM) server *.o *~

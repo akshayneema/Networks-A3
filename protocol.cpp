@@ -10,8 +10,9 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h>
+#include <random>
 using namespace std;
-const double threshold=7;
+const double threshold= 0.15;
 
 clock_t start_timer[MAX_SEQ+1];
 
@@ -24,11 +25,30 @@ clock_t start_time;
 
 string generate_packet()
 {
-	srand(time(0));
-    int length=rand()%64+10;
+	// srand(time(0));
+    int length=rand()%100+3;
     // cout<<"l="<<length<<endl;
     char c[length];
-    memset(c,'0',length);
+	for(int i=0;i<length;i++)
+	{
+		// double p= ((double) rand() / (RAND_MAX));;
+		// if(p<0.5)
+		// 	c[i]='0';
+		// else
+		// 	c[i]='1';
+		
+
+		
+
+
+		int a = rand()%2;
+		c[i] = a+48;
+	}
+
+	int b = rand()%length;
+	if(c[b]='0') c[b]='1';
+	else c[b] = '0';
+    // memset(c,'0',length);
     // cout<<"c(1)="<<c<<endl;
     string s;
     s=c;
@@ -50,7 +70,7 @@ void buildFrame(string s)
 		gb_recv.seq=s[0]-48;
 		gb_recv.ack=s[1]-48;
 		int len=s.length();
-		gb_recv.info= s.substr(2,len-4);
+		gb_recv.info= s.substr(2,len-2);
 	
     // return f;
 }
@@ -71,7 +91,7 @@ void wait_for_event(event_type& event, int& sock)
 
 	while(true){
 
-		for(int i=0;i<8;i++){
+		for(int i=0;i<MAX_SEQ+1;i++){
 			if(start_timer[i]!=0){
 				clock_t end = clock();
 				double time_elapsed = (double)(end-start_timer[i])/CLOCKS_PER_SEC;
@@ -190,6 +210,14 @@ void go_back_n(int& sock)
 	int n=0;
 	start_time = clock();
 
+	int rnd = rand()%100 +1;
+
+	int num_error = 0;
+	int num_recv = 0;
+	int m=0;
+
+	clock_t perf_start = clock();
+
 	while(true)
 	{
 		// n++;
@@ -211,6 +239,9 @@ void go_back_n(int& sock)
 
 		// event = cksum_err;
 
+		
+		
+
 		switch(event)
 		{
 			case network_layer_ready:
@@ -225,9 +256,11 @@ void go_back_n(int& sock)
 				cout<<"data send:   "<<endl<<endl;
 				framebuffer[next_frame_to_send] = generate_packet();
 
+				// usleep(5000);
+
 				send_data(next_frame_to_send,frame_expected,framebuffer,sock);
 
-				cout<<"sending     "<<next_frame_to_send<<endl;
+				// cout<<"sending     "<<next_frame_to_send<<endl;
 				//////////implement send data
 
 				cout<<"seq: "<<next_frame_to_send<<endl;
@@ -245,14 +278,32 @@ void go_back_n(int& sock)
 				// cout<<"data received"<<endl;
 
 				// cout<<"djgfs        "<<gb_recv.seq<<"       "<<gb_recv.ack<<endl;
-			cout<<"frame_arrival   "<<endl<<endl;
+				if(num_error==0)
+				num_recv++;
+
+				if(gb_recv.seq == frame_expected && num_error==1) goto L;
+
+				if(num_error==1) break;
+
+				if(num_recv==rnd){
+					num_recv=0;
+					num_error=1;
+					rnd = rand()%100 +1;
+					break;
+				}
+			
+			L:
+				num_error=0;
+
+				cout<<"frame_arrival   "<<endl<<endl;
 
 				cout<<"seq: "<<gb_recv.seq<<endl;
 				cout<<"ack_rec: "<<gb_recv.ack<<endl;
+				cout<<"data: "<<gb_recv.info<<endl;
 
 				cout<<"--------------------------------------------------------"<<endl;
 
-				n++;
+				m++;
 				
 				if(gb_recv.seq == frame_expected){
 					// to_network_layer(&r.info);
@@ -283,24 +334,38 @@ void go_back_n(int& sock)
 				for(int i=1;i<=nbuffered;i++){
 					send_data(next_frame_to_send,frame_expected,framebuffer,sock);
 
+					cout<<"nbuffered:  "<<nbuffered<<endl;
+
 					cout<<"burst:  "<<endl;
 
 					cout<<"seq: "<<next_frame_to_send<<endl;
 				cout<<"data: "<< framebuffer[next_frame_to_send]<<endl;
 				cout<<"--------------------------------------------------------"<<endl;
+
+				n++;
+				// usleep(5000);
+
 					///////////////////////////
 					next_frame_to_send = (next_frame_to_send+1)%(MAX_SEQ+1);
 				}
 				break;
 		}
 
-		if(n>10) break;
+		// if(n>400) break;
 
 		if(nbuffered<MAX_SEQ)
 			enable_network_layer();
 		else
 			disable_network_layer();
+
+	clock_t perf_end = clock();
+		double time_perf = (double)(perf_end-perf_start)/CLOCKS_PER_SEC;
+
+		if(time_perf>=10) break;
 	}
+
+	cout<<"send: "<<n<<endl;
+	cout<<"receive: "<<m<<endl;
 
 	
 
